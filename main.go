@@ -4,13 +4,12 @@ import (
 	"context"
 	"log"
 
-	firebase "firebase.google.com/go"
+	"cloud.google.com/go/firestore"
 )
 
 func main() {
 	ctx := context.Background()
-	app := initFirebase()
-	client, err := app.Database(ctx)
+	client, err := firestore.NewClient(ctx, "ProjectID")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,19 +22,7 @@ func main() {
 		Name:    "Alice",
 		Balance: "ababa",
 	}
-	if _, err = client.NewRef("accounts/alice").Push(ctx, acc); err != nil {
+	if _, _, err = client.Collection("chatroom").Doc("roomC").Collection("message").Add(ctx, acc); err != nil {
 		log.Fatal(err)
 	}
-}
-func initFirebase() *firebase.App {
-	// gcp上で鍵を作成し、設定する。
-	ctx := context.Background()
-	config := &firebase.Config{
-		DatabaseURL: "https://study-firebase-c7244.firebaseio.com/",
-	}
-	app, err := firebase.NewApp(ctx, config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return app
 }
